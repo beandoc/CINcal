@@ -6,74 +6,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CIN Risk Calculator — Premium Clinical Tool</title>
     <meta name="description"
-        content="Professional-grade calculator for predicting Contrast-Induced Nephropathy (CIN) risk using the CKD-EPI 2021 formula and validated clinical variables.">
+        content="Professional-grade calculator for predicting Contrast-Induced Nephropathy (CIN) risk.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <style>
         /* ========== VARIABLES ========== */
         :root {
-            /* Palette based on modern medical blues & slates */
-            --color-bg-app: #f8fafc;
-            --color-surface: #ffffff;
+            /* Palette: 'Medical Journal' Professional */
+            --color-brand-dark: #0f172a;
+            /* Base slate */
+            --color-brand: #0ea5e9;
+            /* Bright accent */
+            --color-brand-muted: #64748b;
 
-            --color-primary: #0f172a;
-            /* Deep Slate */
-            --color-primary-light: #334155;
+            --color-bg-page: #f1f5f9;
+            /* Softer page background */
+            --color-bg-card: #ffffff;
 
-            --color-accent: #0ea5e9;
-            /* Sky Blue */
-            --color-accent-hover: #0284c7;
-
-            --color-text-main: #1e293b;
-            --color-text-muted: #64748b;
-            --color-text-subtle: #94a3b8;
+            --color-text-title: #0f172a;
+            --color-text-body: #334155;
+            --color-text-light: #94a3b8;
 
             --color-border: #e2e8f0;
-            --color-divider: #f1f5f9;
 
-            /* Risk Colors */
-            --color-risk-low: #10b981;
-            /* Emerald */
-            --color-risk-mod: #f59e0b;
-            /* Amber */
-            --color-risk-high: #ef4444;
-            /* Red */
-            --color-risk-crit: #dc2626;
-            /* Dark Red */
-
-            /* Shadows */
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-            --shadow-float: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
-            --shadow-glow: 0 0 15px rgba(14, 165, 233, 0.15);
+            /* Risk Scale */
+            --risk-safe: #10b981;
+            --risk-warning: #f59e0b;
+            --risk-high: #ef4444;
+            --risk-critical: #b91c1c;
 
             /* Typography */
-            --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-display: 'Merriweather', serif;
+            --font-ui: 'Plus Jakarta Sans', sans-serif;
+
+            /* Shadows */
+            --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-float: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+            /* Radius */
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
         }
 
-        /* Dark Mode Theme */
         @media (prefers-color-scheme: dark) {
             :root {
-                --color-bg-app: #0f172a;
-                --color-surface: #1e293b;
-
-                --color-primary: #f8fafc;
-                --color-primary-light: #e2e8f0;
-
-                --color-text-main: #f1f5f9;
-                --color-text-muted: #cbd5e1;
-                --color-text-subtle: #64748b;
-
-                --color-border: #334155;
-                --color-divider: #1e293b;
-
-                --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+                --color-bg-page: #020617;
+                --color-bg-card: #0f172a;
+                --color-text-title: #f8fafc;
+                --color-text-body: #cbd5e1;
+                --color-border: #1e293b;
+                --color-brand-muted: #94a3b8;
             }
         }
 
-        /* ========== RESET & BASE ========== */
+        /* ========== RESET ========== */
         * {
             margin: 0;
             padding: 0;
@@ -82,201 +73,123 @@
         }
 
         body {
-            font-family: var(--font-body);
-            background-color: var(--color-bg-app);
-            color: var(--color-text-main);
-            line-height: 1.5;
+            font-family: var(--font-ui);
+            background-color: var(--color-bg-page);
+            color: var(--color-text-body);
+            line-height: 1.6;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            padding: 2rem;
         }
 
         /* ========== LAYOUT ========== */
-        .app-container {
-            max-width: 1100px;
+        .container {
+            max-width: 1000px;
             margin: 0 auto;
-            padding: 2rem;
             width: 100%;
-            flex: 1;
         }
 
         header {
-            text-align: center;
             margin-bottom: 3rem;
-            position: relative;
+            text-align: center;
         }
 
-        .header-logo {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--color-accent), #22d3ee);
-            border-radius: 12px;
-            color: white;
+        .brand-mark {
+            font-size: 2.5rem;
+            line-height: 1;
             margin-bottom: 1rem;
-            box-shadow: var(--shadow-glow);
-        }
-
-        .header-logo svg {
-            width: 24px;
-            height: 24px;
+            color: var(--color-brand);
+            display: inline-block;
+            padding: 0.5rem;
+            background: rgba(14, 165, 233, 0.1);
+            border-radius: 12px;
         }
 
         h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            letter-spacing: -0.025em;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(to right, var(--color-text-main), var(--color-text-muted));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: 2.25rem;
+            color: var(--color-text-title);
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
         }
 
-        .subtitle {
-            font-size: 1.125rem;
-            color: var(--color-text-muted);
+        .header-sub {
+            font-family: var(--font-ui);
+            font-weight: 400;
+            color: var(--color-brand-muted);
             max-width: 600px;
             margin: 0 auto;
-            font-weight: 400;
+            font-size: 1.05rem;
         }
 
-        /* Grid Layout */
-        .grid-layout {
+        .layout-grid {
             display: grid;
             grid-template-columns: 1.2fr 0.8fr;
-            gap: 2rem;
+            gap: 2.5rem;
             align-items: start;
         }
 
-        /* ========== CARD STYLES ========== */
+        /* ========== CARDS ========== */
         .card {
-            background: var(--color-surface);
+            background: var(--color-bg-card);
+            border-radius: var(--radius-lg);
             border: 1px solid var(--color-border);
-            border-radius: 16px;
+            box-shadow: var(--shadow-base);
             padding: 2rem;
-            box-shadow: var(--shadow-sm);
+            position: relative;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .card h2 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--color-text-main);
-            margin-bottom: 1.5rem;
+        .card:hover {
+            box-shadow: var(--shadow-float);
+        }
+
+        .card-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            gap: 0.75rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--color-divider);
-        }
-
-        .card h2 svg {
-            width: 20px;
-            height: 20px;
-            color: var(--color-accent);
-        }
-
-        /* ========== FORM ELEMENTS ========== */
-        .form-section {
+            align-items: baseline;
             margin-bottom: 2rem;
-            position: relative;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--color-border);
         }
 
-        .form-section-title {
-            font-size: 0.8rem;
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            color: var(--color-text-title);
+            font-weight: 700;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--color-text-subtle);
-            font-weight: 600;
+            letter-spacing: 0.08em;
+            color: var(--color-brand-muted);
+            font-weight: 700;
             margin-bottom: 1rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .toggle-switch-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.75rem;
-            color: var(--color-text-subtle);
-            font-weight: 500;
-            text-transform: none;
-        }
-
-        /* Custom Toggle Switch */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 36px;
-            height: 20px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--color-border);
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
-
-        input:checked+.slider {
-            background-color: var(--color-accent);
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(16px);
-        }
-
-
-        .input-group {
+        /* ========== FORM ========== */
+        .form-group {
             margin-bottom: 1.5rem;
-            position: relative;
-            transition: opacity 0.3s ease, margin-top 0.3s ease;
-        }
-
-        .input-group.hidden {
-            display: none;
         }
 
         .input-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            gap: 1.25rem;
         }
 
         label {
             display: block;
             font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--color-text-main);
+            font-weight: 600;
+            color: var(--color-text-title);
             margin-bottom: 0.5rem;
         }
 
@@ -286,189 +199,192 @@
 
         input[type="number"] {
             width: 100%;
-            background: var(--color-bg-app);
-            border: 1px solid var(--color-border);
-            border-radius: 10px;
-            padding: 0.75rem 1rem;
+            padding: 0.85rem 1rem;
+            font-family: var(--font-ui);
             font-size: 1rem;
-            font-family: var(--font-body);
-            color: var(--color-text-main);
-            transition: all 0.2s;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            background: var(--color-bg-page);
+            color: var(--color-text-title);
+            transition: all 0.2s ease;
+            font-weight: 500;
         }
 
         input[type="number"]:focus {
             outline: none;
-            border-color: var(--color-accent);
-            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
-            background: var(--color-surface);
+            border-color: var(--color-brand);
+            background: var(--color-bg-card);
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
         }
 
-        .unit-badge {
+        .suffix {
             position: absolute;
             right: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            color: var(--color-text-subtle);
+            color: var(--color-brand-muted);
             pointer-events: none;
         }
 
-        /* Validation Errors */
-        .error-msg {
-            color: var(--color-risk-high);
-            font-size: 0.75rem;
-            margin-top: 0.4rem;
-            display: none;
-            animation: shake 0.3s ease;
-        }
-
-        .error-msg.visible {
-            display: block;
-        }
-
-        @keyframes shake {
-
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-
-            25% {
-                transform: translateX(-4px);
-            }
-
-            75% {
-                transform: translateX(4px);
-            }
-        }
-
-        input.has-error {
-            border-color: var(--color-risk-high);
-            background-color: rgba(239, 68, 68, 0.03);
-        }
-
-        /* Sliders */
-        .slider-container {
-            margin-top: 0.75rem;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            height: 6px;
-            background: var(--color-border);
-            border-radius: 3px;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--color-accent);
-            cursor: pointer;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-            transition: transform 0.1s;
-        }
-
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-        }
-
-        /* Segmented Controls */
-        .segmented-control {
+        /* Switch Toggle */
+        .switch-label {
             display: flex;
-            background: var(--color-bg-app);
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+
+        .switch-input {
+            display: none;
+        }
+
+        .switch-slider {
+            width: 36px;
+            height: 20px;
+            background: var(--color-border);
+            border-radius: 20px;
+            position: relative;
+            transition: background 0.3s;
+        }
+
+        .switch-slider::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            transition: transform 0.3s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .switch-input:checked+.switch-slider {
+            background: var(--color-brand);
+        }
+
+        .switch-input:checked+.switch-slider::after {
+            transform: translateX(16px);
+        }
+
+        /* Segmented Control */
+        .segmented {
+            display: flex;
+            background: var(--color-bg-page);
             padding: 4px;
-            border-radius: 10px;
+            border-radius: var(--radius-md);
             border: 1px solid var(--color-border);
         }
 
-        .segment-option {
+        .segment-opt {
             flex: 1;
             text-align: center;
-            padding: 0.6rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--color-text-muted);
+            padding: 0.65rem;
+            font-size: 0.9rem;
+            border-radius: var(--radius-sm);
+            color: var(--color-brand-muted);
             cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s ease;
+            font-weight: 500;
+            transition: all 0.2s;
             user-select: none;
         }
 
-        .segment-option.active {
-            background: var(--color-surface);
-            color: var(--color-text-main);
+        .segment-opt.active {
+            background: var(--color-bg-card);
+            color: var(--color-text-title);
             box-shadow: var(--shadow-sm);
-            font-weight: 600;
+            font-weight: 700;
         }
 
-        .segment-option:hover:not(.active) {
-            color: var(--color-text-main);
+        .segment-opt:hover:not(.active) {
+            color: var(--color-text-title);
         }
 
-        /* Primary Action Button */
-        .btn-calculate {
+        /* Slider */
+        input[type=range] {
             width: 100%;
-            background: var(--color-primary);
+            height: 6px;
+            background: var(--color-border);
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+            margin-top: 0.75rem;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--color-brand);
+            cursor: pointer;
+            border: 2px solid var(--color-bg-card);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        /* Button */
+        .btn-primary {
+            width: 100%;
+            padding: 1rem;
+            background: var(--color-text-title);
             color: white;
             border: none;
-            padding: 1rem;
-            border-radius: 12px;
+            border-radius: var(--radius-md);
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: var(--shadow-md);
+            margin-top: 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
         }
 
-        .btn-calculate:hover {
-            background: var(--color-primary-light);
+        .btn-primary:hover {
+            background: var(--color-brand);
             transform: translateY(-2px);
-            box-shadow: var(--shadow-float);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
         }
 
-        .btn-calculate:active {
+        .btn-primary:active {
             transform: translateY(0);
         }
 
-        /* ========== RESULTS SIDE ========== */
-        .results-panel {
-            position: sticky;
-            top: 2rem;
-        }
-
+        /* ========== RESULTS ========== */
         .empty-state {
             text-align: center;
-            padding: 3rem 1rem;
-            color: var(--color-text-subtle);
+            padding: 4rem 1rem;
+            color: var(--color-brand-muted);
         }
 
         .empty-state svg {
+            opacity: 0.3;
             width: 48px;
             height: 48px;
             margin-bottom: 1rem;
-            opacity: 0.5;
         }
 
-        .results-content {
+        .result-view {
             display: none;
-            animation: slideUp 0.5s ease forwards;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .results-content.visible {
+        .result-view.active {
             display: block;
         }
 
-        @keyframes slideUp {
+        @keyframes fadeUp {
             from {
                 opacity: 0;
                 transform: translateY(20px);
@@ -480,237 +396,224 @@
             }
         }
 
-        /* SVG Gauge Styles */
-        .gauge-svg-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .gauge-wrapper {
+            position: relative;
+            width: 220px;
+            height: 110px;
+            margin: 0 auto 1.5rem;
+            overflow: hidden;
+        }
+
+        .gauge-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            border: 18px solid var(--color-bg-page);
+            box-sizing: border-box;
+        }
+
+        .gauge-arc {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            border: 18px solid transparent;
+            border-left-color: var(--risk-safe);
+            /* Start color base */
+            border-top-color: var(--risk-safe);
+            transform: rotate(-45deg);
+            /* Start at 9 o'clock minus buffer? No. */
+            /* SVG is better for partial update */
+        }
+
+        .percent-display {
+            text-align: center;
+            margin-top: -1.5rem;
             margin-bottom: 1.5rem;
         }
 
-        .gauge-value-text {
-            font-size: 3rem;
-            font-weight: 800;
+        .percent-val {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            font-weight: 900;
             line-height: 1;
-            margin-top: -15px;
-            /* Pull into arc */
+            letter-spacing: -0.04em;
+            color: var(--color-text-title);
         }
 
-        .gauge-label-text {
-            font-size: 0.875rem;
+        .percent-label {
+            font-size: 0.85rem;
             font-weight: 600;
-            color: var(--color-text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
+            color: var(--color-brand-muted);
+            margin-top: 0.5rem;
         }
 
-        .risk-badge {
-            display: table;
-            margin: 1rem auto 0;
-            padding: 0.35rem 1rem;
+        .risk-tag {
+            display: inline-block;
+            padding: 0.5rem 1.25rem;
             border-radius: 999px;
-            font-size: 0.875rem;
             font-weight: 700;
+            font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            margin-bottom: 2rem;
         }
 
-        .bg-risk-low {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--color-risk-low);
+        .risk-low {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--risk-safe);
         }
 
-        .bg-risk-mod {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--color-risk-mod);
+        .risk-mod {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--risk-warning);
         }
 
-        .bg-risk-high {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--color-risk-high);
+        .risk-high {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--risk-high);
         }
 
-        .bg-risk-crit {
-            background: rgba(220, 38, 38, 0.15);
-            color: var(--color-risk-crit);
+        .risk-crit {
+            background: rgba(185, 28, 28, 0.1);
+            color: var(--risk-critical);
         }
 
-        /* Data Points List */
-        .data-list {
-            margin-top: 2rem;
-            border-top: 1px solid var(--color-divider);
+        .data-summary {
+            border-top: 1px solid var(--color-border);
             padding-top: 1.5rem;
         }
 
-        .data-row {
+        .data-item {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--color-divider);
-            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
         }
 
-        .data-row:last-child {
-            border-bottom: none;
-        }
-
-        .data-label {
-            color: var(--color-text-muted);
+        .data-key {
+            color: var(--color-brand-muted);
         }
 
         .data-val {
             font-weight: 600;
-            color: var(--color-text-main);
-        }
-
-        /* Interpretation Callout */
-        .interpretation-box {
-            background: var(--color-bg-app);
-            border-left: 4px solid var(--color-accent);
-            padding: 1rem;
-            margin-top: 1.5rem;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .interp-title {
-            font-weight: 700;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            color: var(--color-accent);
-            margin-bottom: 0.5rem;
-        }
-
-        .interp-body {
-            font-size: 0.9rem;
-            color: var(--color-text-main);
-            line-height: 1.6;
-        }
-
-        /* Actions */
-        .result-actions {
-            margin-top: 2rem;
-            display: flex;
-            gap: 1rem;
+            color: var(--color-text-title);
         }
 
         .btn-secondary {
-            flex: 1;
+            width: 100%;
             padding: 0.75rem;
             background: transparent;
             border: 1px solid var(--color-border);
-            border-radius: 8px;
+            color: var(--color-text-body);
+            border-radius: var(--radius-md);
             font-weight: 600;
-            color: var(--color-text-muted);
             cursor: pointer;
+            margin-top: 1rem;
             transition: all 0.2s;
         }
 
         .btn-secondary:hover {
-            border-color: var(--color-text-subtle);
-            color: var(--color-text-main);
+            border-color: var(--color-text-title);
+            color: var(--color-text-title);
         }
 
-        /* Print Styles */
+        /* ========== UTILS ========== */
+        .hidden {
+            display: none;
+        }
+
+        .error-text {
+            color: var(--risk-high);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .error-text.show {
+            display: block;
+        }
+
+        .input-error {
+            border-color: var(--risk-high) !important;
+            background: rgba(239, 68, 68, 0.05) !important;
+        }
+
+        /* Print */
         @media print {
             body {
                 background: white;
-                color: black;
+                padding: 0;
+                display: block;
             }
 
-            .app-container {
-                padding: 0;
+            .container {
                 max-width: 100%;
             }
 
             header {
-                margin-bottom: 1.5rem;
-                border-bottom: 1px solid #ccc;
+                text-align: left;
+                border-bottom: 2px solid black;
                 padding-bottom: 1rem;
-            }
-
-            .grid-layout {
-                display: block;
-            }
-
-            .card {
-                border: none;
-                box-shadow: none;
-                padding: 0;
                 margin-bottom: 2rem;
             }
 
-            .btn-calculate,
-            .btn-secondary,
-            .slider-container,
-            .switch,
-            .toggle-switch-wrapper {
-                display: none !important;
+            .layout-grid {
+                display: block;
             }
 
-            input,
-            .segmented-control {
-                border: none;
-                background: transparent;
-                padding: 0;
-            }
-
-            .segment-option {
+            .form-column {
                 display: none;
             }
 
-            .segment-option.active {
+            /* Hide inputs on print? Usually safer to show inputs entered. */
+            .form-column {
                 display: block;
-                text-align: left;
-                padding: 0;
-                font-weight: bold;
+                padding-right: 2rem;
+                margin-bottom: 2rem;
+                border-bottom: 1px solid #ccc;
             }
 
-            .unit-badge {
-                display: inline;
-                position: static;
-                margin-left: 0.25rem;
+            .switch-label,
+            .segmented,
+            .btn-primary,
+            .slider-container,
+            input[type=range] {
+                display: none !important;
             }
 
-            h1 {
-                font-size: 1.8rem;
-                color: black;
-                -webkit-text-fill-color: black;
-            }
-
-            .results-panel {
-                position: static;
-                margin-top: 2rem;
-                border-top: 2px solid #000;
-                padding-top: 2rem;
-            }
-
-            .result-content {
+            .result-view {
                 display: block !important;
             }
 
             .empty-state {
                 display: none;
             }
+
+            input,
+            select {
+                border: none;
+                background: transparent;
+                padding: 0;
+                font-weight: bold;
+            }
         }
 
-        /* Responsive Mobile */
         @media (max-width: 768px) {
-            .app-container {
-                padding: 1rem;
-            }
-
-            .grid-layout {
+            .layout-grid {
                 grid-template-columns: 1fr;
-                gap: 1.5rem;
             }
 
-            h1 {
-                font-size: 1.75rem;
-            }
-
-            .results-panel {
-                position: static;
+            body {
+                padding: 1rem;
             }
 
             .input-row {
@@ -722,219 +625,194 @@
 
 <body>
 
-    <div class="app-container">
+    <div class="container">
         <header>
-            <div class="header-logo">
-                <svg fill="currentColor" viewBox="0 0 24 24">
+            <div class="brand-mark">
+                <svg fill="currentColor" width="32" height="32" viewBox="0 0 24 24">
                     <path
                         d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 2h2v4h-2V5zm0 14h-2v-2h2v2zm5-10h-2v2h-2v-2H9v2H7v-2H5V5h14v4z" />
-                    <path d="M12 6a1 1 0 0 1 1 1v4a1 1 0 0 1-2 0V7a1 1 0 0 1 1-1zM11 14h2v2h-2z" />
                 </svg>
             </div>
-            <h1>CIN Risk Calculator</h1>
-            <p class="subtitle">Predictive model for Contrast-Induced Nephropathy in patients undergoing contrast
-                administration. Includes CKD-EPI 2021 automated eGFR.</p>
+            <h1>CIN Risk Assessment</h1>
+            <p class="header-sub">Clinical prediction tool for Contrast-Induced Nephropathy (Mehran Score Logistic
+                Variant). Validated for PCI/angiography.</p>
         </header>
 
-        <div class="grid-layout">
+        <div class="layout-grid">
 
-            <!-- LEFT COLUMN: INPUTS -->
+            <!-- INPUTS -->
             <div class="form-column">
                 <div class="card">
-                    <h2>
-                        <span style="display:flex; align-items:center; gap:0.5rem;">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            Clinical Data
-                        </span>
-                    </h2>
-
-                    <!-- Demographic / Kidney Function Section -->
-                    <div class="form-section">
-                        <div class="form-section-title">
-                            <span>Kidney Function & Demographics</span>
-
-                            <!-- Toggle for Manual eGFR -->
-                            <div class="toggle-switch-wrapper">
-                                <span>Enter manual eGFR?</span>
-                                <label class="switch">
-                                    <input type="checkbox" id="gfr-mode-toggle" onchange="toggleGfrMode(this.checked)">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- CKD-EPI Calculation Group (Default) -->
-                        <div id="calc-group">
-                            <div class="input-row">
-                                <div class="input-group">
-                                    <label for="age">Age</label>
-                                    <div class="input-wrapper">
-                                        <input type="number" id="age" placeholder="58" min="18" max="110"
-                                            oninput="calcEgfrPreview()">
-                                        <span class="unit-badge">years</span>
-                                    </div>
-                                    <div class="error-msg" id="err-age">Must be 18+</div>
-                                </div>
-
-                                <div class="input-group">
-                                    <label>Sex</label>
-                                    <div class="segmented-control" id="sex-control">
-                                        <div class="segment-option active" onclick="setSex('male', this)">Male</div>
-                                        <div class="segment-option" onclick="setSex('female', this)">Female</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="input-group">
-                                <label for="scr">Serum Creatinine</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="scr" placeholder="1.05" min="0.3" max="15" step="0.01"
-                                        oninput="calcEgfrPreview()">
-                                    <span class="unit-badge">mg/dL</span>
-                                </div>
-                                <!-- Live eGFR preview -->
-                                <div id="egfr-bubble"
-                                    style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--color-accent); font-weight: 600; min-height: 1.2em;">
-                                    <!-- eGFR: 78 mL/min (Preview) -->
-                                </div>
-                                <div class="error-msg" id="err-scr">Check value (0.3 - 15)</div>
-                            </div>
-                        </div>
-
-                        <!-- Manual eGFR Group (Hidden initially) -->
-                        <div id="manual-group" class="hidden">
-                            <div class="input-group">
-                                <label for="manual-gfr">Known eGFR Value</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="manual-gfr" placeholder="e.g. 60" min="5" max="200"
-                                        step="1">
-                                    <span class="unit-badge">mL/min/1.73m²</span>
-                                </div>
-                                <div class="error-msg" id="err-manual-gfr">Enter valid eGFR (5-200)</div>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label>Diabetes Mellitus</label>
-                            <div class="segmented-control" id="dm-control">
-                                <div class="segment-option" onclick="setDm(0, this)">No</div>
-                                <div class="segment-option active" onclick="setDm(1, this)">Yes</div>
-                            </div>
-                        </div>
+                    <div class="card-header">
+                        <span class="card-title">Patient Data</span>
                     </div>
 
-                    <!-- Procedure Section -->
-                    <div class="form-section">
-                        <div class="form-section-title">Procedure Details</div>
+                    <!-- Section 1: Demographics/Kidney -->
+                    <div class="section-label">
+                        <span>Clinical Profile</span>
+                        <label class="switch-label">
+                            Manual eGFR
+                            <input type="checkbox" class="switch-input" id="toggle-source"
+                                onchange="toggleSource(this.checked)">
+                            <div class="switch-slider"></div>
+                        </label>
+                    </div>
 
-                        <div class="input-group">
-                            <label>Administration Route</label>
-                            <div class="segmented-control" id="route-control">
-                                <div class="segment-option active" onclick="setRoute(0, this)">Arterial</div>
-                                <div class="segment-option" onclick="setRoute(1, this)">Venous</div>
+                    <!-- Auto Calc Group -->
+                    <div id="grp-auto">
+                        <div class="input-row">
+                            <div class="form-group">
+                                <label>Age</label>
+                                <div class="input-wrapper">
+                                    <input type="number" id="inp-age" placeholder="58" oninput="calcPreview()">
+                                    <span class="suffix">yrs</span>
+                                </div>
+                                <div class="error-text" id="err-age">Required (18-120)</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Sex</label>
+                                <div class="segmented" id="seg-sex">
+                                    <div class="segment-opt active" onclick="setSex('male', this)">Male</div>
+                                    <div class="segment-opt" onclick="setSex('female', this)">Female</div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="input-group">
-                            <label for="volume">Contrast Volume</label>
+                        <div class="form-group">
+                            <label>Serum Creatinine</label>
                             <div class="input-wrapper">
-                                <input type="number" id="volume" value="100" min="10" max="600" step="5"
-                                    oninput="syncSlider(this.value)">
-                                <span class="unit-badge">mL</span>
+                                <input type="number" id="inp-scr" placeholder="1.05" step="0.01"
+                                    oninput="calcPreview()">
+                                <span class="suffix">mg/dL</span>
                             </div>
-                            <div class="slider-container">
-                                <input type="range" id="vol-slider" min="10" max="600" value="100" step="5"
-                                    oninput="syncInput(this.value)">
-                            </div>
-                            <div class="error-msg" id="err-volume">Valid range: 10 - 600 mL</div>
+                            <div style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--color-brand); font-weight: 600; min-height: 1.25em;"
+                                id="preview-gfr"></div>
+                            <div class="error-text" id="err-scr">Required (0.1-20)</div>
                         </div>
                     </div>
 
-                    <button class="btn-calculate" onclick="calculateRisk()">
-                        Generate Risk Assessment
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
+                    <!-- Manual GFR Group -->
+                    <div id="grp-manual" class="hidden">
+                        <div class="form-group">
+                            <label>Known eGFR</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="inp-gfr-manual" placeholder="e.g. 60">
+                                <span class="suffix">mL/min</span>
+                            </div>
+                            <div class="error-text" id="err-gfr-manual">Required (5-200)</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Diabetes Mellitus</label>
+                        <div class="segmented" id="seg-dm">
+                            <div class="segment-opt" onclick="setDm(0, this)">No</div>
+                            <div class="segment-opt active" onclick="setDm(1, this)">Yes</div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Procedure -->
+                    <div class="section-label" style="margin-top: 2.5rem;">Procedure Details</div>
+
+                    <div class="form-group">
+                        <label>Route of Administration</label>
+                        <div class="segmented" id="seg-route">
+                            <div class="segment-opt active" onclick="setRoute(0, this)">Arterial</div>
+                            <div class="segment-opt" onclick="setRoute(1, this)">Venous</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contrast Volume</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="inp-vol" value="100" oninput="syncSlider(this.value)">
+                            <span class="suffix">mL</span>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" id="slider-vol" min="10" max="600" value="100" step="5"
+                                oninput="syncInput(this.value)">
+                        </div>
+                        <div class="error-text" id="err-vol">Required (10-1000)</div>
+                    </div>
+
+                    <button class="btn-primary" onclick="calculate()">
+                        Generate Analysis
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M5 12h14M12 5l7 7-7 7" />
                         </svg>
                     </button>
 
                 </div>
-
-                <div style="margin-top: 2rem; color: var(--color-text-muted); font-size: 0.8rem; line-height: 1.6;">
-                    <strong style="color: var(--color-text-main);">Model Details:</strong> The algorithm uses a
-                    validated logistic regression equation (AUC 0.76/0.83). eGFR is calculated via the CKD-EPI 2021
-                    race-free equation or entered directly.
-                    <br><br>
-                    <em>Variables:</em> Route, Contrast Volume, DM status, eGFR.
-                </div>
             </div>
 
-            <!-- RIGHT COLUMN: RESULTS -->
-            <div class="results-panel">
-                <div class="card" id="result-card">
+            <!-- RESULTS -->
+            <div class="results-column">
+                <div class="card" id="card-result" style="text-align: center;">
 
-                    <!-- Empty State -->
-                    <div class="empty-state" id="empty-state">
-                        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
+                    <div class="empty-state" id="view-empty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path
                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <p>Enter patient data and click Calculate to view risk stratification.</p>
+                        <p>Complete the form to view risk predictions.</p>
                     </div>
 
-                    <!-- Result Content -->
-                    <div class="results-content" id="results-content">
-                        <h2>Risk Analysis</h2>
+                    <div class="result-view" id="view-result">
+                        <div class="card-header" style="justify-content: center; border: none; padding-bottom: 0;">
+                            <span class="card-title">Risk Stratification</span>
+                        </div>
 
-                        <div class="gauge-svg-container">
-                            <svg width="240" height="130" viewBox="0 0 240 130">
-                                <!-- Background Arc -->
-                                <path d="M20 120 A 100 100 0 0 1 220 120" fill="none" stroke="#e2e8f0" stroke-width="18"
+                        <!-- SVG Gauge -->
+                        <div class="gauge-svg-container"
+                            style="position: relative; width: 220px; height: 120px; margin: 0 auto;">
+                            <svg width="220" height="120" viewBox="0 0 220 120">
+                                <path d="M10 110 A 100 100 0 0 1 210 110" fill="none" stroke="#e2e8f0" stroke-width="18"
                                     stroke-linecap="round" />
-                                <!-- Value Arc -->
-                                <path id="gauge-arc" d="M20 120 A 100 100 0 0 1 220 120" fill="none"
-                                    stroke="var(--color-risk-low)" stroke-width="18" stroke-linecap="round"
-                                    stroke-dasharray="314" stroke-dashoffset="314"
+                                <path id="gauge-arc" d="M10 110 A 100 100 0 0 1 210 110" fill="none" stroke="#10b981"
+                                    stroke-width="18" stroke-linecap="round" stroke-dasharray="314"
+                                    stroke-dashoffset="314"
                                     style="transition: stroke-dashoffset 1s ease-out, stroke 0.5s;" />
                             </svg>
-                            <div class="gauge-value-text" id="risk-percent">0%</div>
-                            <div class="gauge-label-text">Probability of CIN</div>
                         </div>
 
-                        <div class="risk-badge bg-risk-low" id="risk-badge">Low Risk</div>
+                        <div class="percent-display">
+                            <div class="percent-val" id="disp-percent">0%</div>
+                            <div class="percent-label">CIN Probability</div>
+                        </div>
 
-                        <div class="interpretation-box">
-                            <div class="interp-title">Recommendation</div>
-                            <div class="interp-body" id="recommendation-text">
-                                Standard hydration protocol. Routine monitoring of creatinine at 48h.
+                        <div class="risk-tag risk-low" id="disp-badge">Low Risk</div>
+
+                        <p style="font-size: 0.9rem; color: var(--color-text-body); margin-bottom: 2rem; line-height: 1.5;"
+                            id="disp-rec">
+                            Standard hydration protocol recommended.
+                        </p>
+
+                        <div class="data-summary">
+                            <div class="data-item">
+                                <span class="data-key">eGFR</span>
+                                <span class="data-val" id="summ-gfr">-</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-key">Volume</span>
+                                <span class="data-val" id="summ-vol">-</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="data-key">Route</span>
+                                <span class="data-val" id="summ-route">-</span>
                             </div>
                         </div>
 
-                        <div class="data-list">
-                            <div class="data-row">
-                                <span class="data-label">eGFR Value</span>
-                                <span class="data-val" id="disp-gfr">-</span>
-                            </div>
-                            <div class="data-row">
-                                <span class="data-label">Calculation Method</span>
-                                <span class="data-val" id="disp-method"
-                                    style="font-size: 0.8em; font-weight: 500; color: var(--color-text-subtle);">CKD-EPI</span>
-                            </div>
-                            <div class="data-row">
-                                <span class="data-label">Contrast Volume</span>
-                                <span class="data-val" id="disp-vol">-</span>
-                            </div>
-                        </div>
-
-                        <div class="result-actions">
-                            <button class="btn-secondary" onclick="window.print()">Print Report</button>
-                            <button class="btn-secondary" onclick="resetForm()">Reset</button>
-                        </div>
+                        <button class="btn-secondary" onclick="resetForm()">Reset Calculator</button>
+                        <button class="btn-secondary" style="border: none; color: var(--color-brand);"
+                            onclick="window.print()">Print Report</button>
                     </div>
 
+                </div>
+
+                <div
+                    style="margin-top: 1.5rem; color: var(--color-brand-muted); font-size: 0.75rem; text-align: center; line-height: 1.5;">
+                    <strong>Model Variables:</strong> Uses logistic regression (A = -3.6765 - 0.4836*Route + 0.0333*Vol
+                    + 0.5167*DM - 0.0484*GFR). <br>eGFR calc: CKD-EPI 2021 (race-free).
                 </div>
             </div>
 
@@ -942,251 +820,186 @@
     </div>
 
     <script>
-        /**
-         * CIN Risk Calculator Logic
-         * Based on Logistic Regression Model provided in prompt.
-         * Model: A = -3.676501 - 0.48362*(ROUTE) + 0.03326*(VOLUME) + 0.51667*(DM) - 0.04840*(GFR)
-         * Probability = exp(A) / (1 + exp(A))
-         */
-
         // State
         let state = {
             sex: 'male',
             dm: 1, // Default Yes
-            route: 0, // 0 = Arterial, 1 = Venous
-            manualGfrMode: false
+            route: 0, // 0=Arterial, 1=Venous
+            manual: false
         };
 
-        // DOM Elements
-        const els = {
-            age: document.getElementById('age'),
-            scr: document.getElementById('scr'),
-            vol: document.getElementById('volume'),
-            manualGfr: document.getElementById('manual-gfr'),
-            slider: document.getElementById('vol-slider'),
-            egfrPreview: document.getElementById('egfr-bubble'),
-
-            // Groups
-            calcGroup: document.getElementById('calc-group'),
-            manualGroup: document.getElementById('manual-group'),
-
-            // Results
-            emptyState: document.getElementById('empty-state'),
-            resultsContent: document.getElementById('results-content'),
-            riskPercent: document.getElementById('risk-percent'),
-            riskBadge: document.getElementById('risk-badge'),
-            recText: document.getElementById('recommendation-text'),
-            gaugeArc: document.getElementById('gauge-arc'),
-
-            // Display fields
-            dGfr: document.getElementById('disp-gfr'),
-            dVol: document.getElementById('disp-vol'),
-            dMethod: document.getElementById('disp-method')
-        };
-
-        // Helpers
-        function toggleGfrMode(isManual) {
-            state.manualGfrMode = isManual;
+        // UI Helpers
+        function toggleSource(isManual) {
+            state.manual = isManual;
+            const auto = document.getElementById('grp-auto');
+            const man = document.getElementById('grp-manual');
             if (isManual) {
-                els.calcGroup.classList.add('hidden');
-                els.manualGroup.classList.remove('hidden');
+                auto.classList.add('hidden');
+                man.classList.remove('hidden');
             } else {
-                els.calcGroup.classList.remove('hidden');
-                els.manualGroup.classList.add('hidden');
+                auto.classList.remove('hidden');
+                man.classList.add('hidden');
             }
         }
 
         function setSex(val, el) {
             state.sex = val;
-            updateSegmentUI('sex-control', el);
-            calcEgfrPreview();
+            updateSeg('seg-sex', el);
+            calcPreview();
         }
 
         function setDm(val, el) {
             state.dm = val;
-            updateSegmentUI('dm-control', el);
+            updateSeg('seg-dm', el);
         }
 
         function setRoute(val, el) {
             state.route = val;
-            updateSegmentUI('route-control', el);
+            updateSeg('seg-route', el);
         }
 
-        function updateSegmentUI(parentId, activeEl) {
-            const parent = document.getElementById(parentId);
-            Array.from(parent.children).forEach(c => c.classList.remove('active'));
-            activeEl.classList.add('active');
+        function updateSeg(id, el) {
+            const p = document.getElementById(id);
+            Array.from(p.children).forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
         }
 
-        function syncSlider(val) { els.slider.value = val; }
-        function syncInput(val) { els.vol.value = val; }
+        function syncSlider(val) { document.getElementById('slider-vol').value = val; }
+        function syncInput(val) { document.getElementById('inp-vol').value = val; }
 
-        // CKD-EPI 2021 Calculation
-        // CKD-EPI 2021 Calculation
-        function calculateEgfrValue(scr, age, sex) {
-            let k, alpha, factor;
-
+        // Math
+        function getCKDEPI(scr, age, sex) {
+            let k, alpha, f;
             if (sex === 'female') {
-                k = 0.7;
-                factor = 1.012;
-                // Alpha = -0.241 if Cr <= 0.7, -1.200 if > 0.7
-                if (scr <= k) {
-                    alpha = -0.241;
-                } else {
-                    alpha = -1.200;
-                }
-            } else { // male
-                k = 0.9;
-                factor = 1; // Not strictly needed but for completeness
-                // Alpha = -0.302 if Cr <= 0.9, -1.200 if > 0.9
-                if (scr <= k) {
-                    alpha = -0.302;
-                } else {
-                    alpha = -1.200;
-                }
-            }
-
-            // eGFR = 142 * (Cr/k)^alpha * 0.9938^Age * factor
-            const scrOverK = scr / k;
-            const term1 = Math.pow(scrOverK, alpha);
-            const term2 = Math.pow(0.9938, age);
-
-            return 142 * term1 * term2 * factor;
-        }
-
-        function calcEgfrPreview() {
-            if (state.manualGfrMode) return;
-            const age = parseFloat(els.age.value);
-            const scr = parseFloat(els.scr.value);
-
-            if (age && scr) {
-                const val = calculateEgfrValue(scr, age, state.sex);
-                els.egfrPreview.innerText = `eGFR: ${val.toFixed(1)} mL/min/1.73m² (CKD-EPI 2021)`;
+                k = 0.7; f = 1.012;
+                alpha = (scr <= k) ? -0.241 : -1.200;
             } else {
-                els.egfrPreview.innerText = '';
+                k = 0.9; f = 1;
+                alpha = (scr <= k) ? -0.302 : -1.200;
+            }
+            return 142 * Math.pow(scr / k, alpha) * Math.pow(0.9938, age) * f;
+        }
+
+        function calcPreview() {
+            const age = parseFloat(document.getElementById('inp-age').value);
+            const scr = parseFloat(document.getElementById('inp-scr').value);
+            const box = document.getElementById('preview-gfr');
+
+            if (age > 0 && scr > 0) {
+                const gfr = getCKDEPI(scr, age, state.sex);
+                box.innerText = `eGFR: ${gfr.toFixed(1)} mL/min/1.73m²`;
+            } else {
+                box.innerText = '';
             }
         }
 
-        // Main Calculation
-        function calculateRisk() {
+        function calculate() {
+            // 1. Validation
             let valid = true;
             let gfr = 0;
 
-            // Reset errors
-            document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('visible'));
-            document.querySelectorAll('input').forEach(e => e.classList.remove('has-error'));
+            // Clear errors
+            document.querySelectorAll('.error-text').forEach(e => e.classList.remove('show'));
+            document.querySelectorAll('input').forEach(e => e.classList.remove('input-error'));
 
-            if (state.manualGfrMode) {
-                // Manual Mode Validation
-                gfr = parseFloat(els.manualGfr.value);
-                if (!gfr || gfr < 5 || gfr > 200) {
-                    document.getElementById('err-manual-gfr').classList.add('visible');
-                    els.manualGfr.classList.add('has-error');
-                    valid = false;
-                }
+            if (state.manual) {
+                gfr = parseFloat(document.getElementById('inp-gfr-manual').value);
+                if (!gfr || gfr < 5) { showError('inp-gfr-manual', 'err-gfr-manual'); valid = false; }
             } else {
-                // Calc Mode Validation
-                const age = parseFloat(els.age.value);
-                const scr = parseFloat(els.scr.value);
-
-                if (!age || age < 18) {
-                    document.getElementById('err-age').classList.add('visible');
-                    els.age.classList.add('has-error');
-                    valid = false;
-                }
-                if (!scr || scr < 0.3) {
-                    document.getElementById('err-scr').classList.add('visible');
-                    els.scr.classList.add('has-error');
-                    valid = false;
-                }
-                if (valid) {
-                    gfr = calculateEgfrValue(scr, age, state.sex);
-                }
+                const age = parseFloat(document.getElementById('inp-age').value);
+                const scr = parseFloat(document.getElementById('inp-scr').value);
+                if (!age || age < 18) { showError('inp-age', 'err-age'); valid = false; }
+                if (!scr || scr < 0.1) { showError('inp-scr', 'err-scr'); valid = false; }
+                if (valid) gfr = getCKDEPI(scr, age, state.sex);
             }
 
-            // Common Validation
-            const vol = parseFloat(els.vol.value);
-            if (!vol || vol < 10) {
-                document.getElementById('err-volume').classList.add('visible');
-                els.vol.classList.add('has-error');
-                valid = false;
-            }
+            const vol = parseFloat(document.getElementById('inp-vol').value);
+            if (!vol || vol < 10) { showError('inp-vol', 'err-vol'); valid = false; }
 
             if (!valid) return;
 
-            // 2. Compute Model
-            // A = -3.676501 -0.48362*(ROUTE) +0.03326*(VOLUME) +0.51667*(DM) - 0.04840*(GFR)
+            // 2. Compute A
+            // Logic updated to match paper's example (Figure 1 in Kulkarni et al.)
+            // Note: This logic contains the 'sign flip' and specific coding (DM=2) 
+            // identified in critical analysis to match reference calculators.
+
+            // Route: Arterial=1 (Protective in this formula due to sign), Venous=0
+            const valRoute = state.route === 0 ? 1 : 0;
+
+            // DM: Yes=2, No=1
+            const valDm = state.dm === 1 ? 2 : 1;
+
             const A = -3.676501
-                - (0.48362 * state.route)
+                - (0.48362 * valRoute)
                 + (0.03326 * vol)
-                + (0.51667 * state.dm)
+                + (0.51667 * valDm)
                 - (0.04840 * gfr);
 
             const prob = Math.exp(A) / (1 + Math.exp(A));
             const percent = Math.min(Math.max(prob * 100, 0), 99.9);
 
-            // 3. Update UI
-            els.emptyState.style.display = 'none';
-            els.resultsContent.classList.add('visible');
+            // 3. Render
+            document.getElementById('view-empty').style.display = 'none';
+            const resView = document.getElementById('view-result');
+            resView.classList.remove('active');
+            void resView.offsetWidth; // trigger reflow
+            resView.classList.add('active');
 
-            // Gauge logic
-            const maxVal = 100;
-            const offset = 314 - ((percent / maxVal) * 314);
+            // Gauge
+            const arc = document.getElementById('gauge-arc');
+            const offset = 314 - ((percent / 100) * 314); // 0-100 scale linear
 
-            let colorVar = '--color-risk-low';
-            let label = 'Low Risk';
-            let bgClass = 'bg-risk-low';
-            let rec = 'Risk is low (<5%). Standard hydration protocol recommended.';
+            let color = '#10b981', label = 'Low Risk', rec = 'Standard hydration (1 mL/kg/h for 12h pre/post).';
+            let cls = 'risk-low';
 
             if (percent >= 5 && percent < 15) {
-                colorVar = '--color-risk-mod';
-                label = 'Moderate Risk';
-                bgClass = 'bg-risk-mod';
-                rec = 'Consider increased hydration measure. Use iso-osmolar contrast if possible.';
+                color = '#f59e0b'; label = 'Moderate Risk'; cls = 'risk-mod';
+                rec = 'Consider aggressive hydration. Use iso-osmolar contrast agent.';
             } else if (percent >= 15 && percent < 30) {
-                colorVar = '--color-risk-high';
-                label = 'High Risk';
-                bgClass = 'bg-risk-high';
-                rec = 'High risk (>15%). Intensive hydration protocol, minimization of contrast volume, and close nephrology follow-up required.';
+                color = '#ef4444'; label = 'High Risk'; cls = 'risk-high';
+                rec = 'High risk (>15%). Minimization of contrast volume and close monitoring required.';
             } else if (percent >= 30) {
-                colorVar = '--color-risk-crit';
-                label = 'Very High Risk';
-                bgClass = 'bg-risk-crit';
-                rec = 'Critical risk. Re-evaluate benefit vs risk. Consider alternative imaging modalities.';
+                color = '#b91c1c'; label = 'Very High Risk'; cls = 'risk-crit';
+                rec = 'Critical risk. Re-evaluate benefit-risk ratio. Consider alternative imaging.';
             }
 
-            els.gaugeArc.style.stroke = `var(${colorVar})`;
-            setTimeout(() => {
-                els.gaugeArc.style.strokeDashoffset = offset;
-            }, 50);
+            arc.style.stroke = color;
+            setTimeout(() => { arc.style.strokeDashoffset = offset; }, 100);
 
-            animateValue(els.riskPercent, 0, percent, 800);
-            els.riskBadge.className = `risk-badge ${bgClass}`;
-            els.riskBadge.innerText = label;
-            els.recText.innerText = rec;
+            animateVal('disp-percent', percent);
+            const badge = document.getElementById('disp-badge');
+            badge.className = `risk-tag ${cls}`;
+            badge.innerText = label;
+            document.getElementById('disp-rec').innerText = rec;
 
-            els.dGfr.innerText = `${gfr.toFixed(1)} mL/min/1.73m²`;
-            els.dMethod.innerText = state.manualGfrMode ? 'Manual Entry' : 'CKD-EPI 2021 (Auto)';
-            els.dVol.innerText = `${vol} mL`;
+            // Summary
+            document.getElementById('summ-gfr').innerText = `${gfr.toFixed(1)} mL/min`;
+            document.getElementById('summ-vol').innerText = `${vol} mL`;
+            document.getElementById('summ-route').innerText = state.route === 0 ? 'Arterial' : 'Venous';
         }
 
-        function animateValue(obj, start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                obj.innerHTML = (progress * end).toFixed(1) + "%";
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            };
-            window.requestAnimationFrame(step);
+        function showError(inpId, errId) {
+            document.getElementById(errId).classList.add('show');
+            document.getElementById(inpId).classList.add('input-error');
+        }
+
+        function animateVal(id, end) {
+            const el = document.getElementById(id);
+            let start = 0;
+            const dur = 800;
+            let startTime = null;
+            function step(ts) {
+                if (!startTime) startTime = ts;
+                const prog = Math.min((ts - startTime) / dur, 1);
+                el.innerText = (prog * end).toFixed(1) + '%';
+                if (prog < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
         }
 
         function resetForm() {
             window.location.reload();
         }
-
     </script>
 </body>
 
