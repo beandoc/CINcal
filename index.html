@@ -656,12 +656,6 @@
                                 onchange="toggleSource(this.checked)">
                             <div class="switch-slider"></div>
                         </label>
-                        <label class="switch-label" style="display:flex; justify-content:flex-end;">
-                            Clinical Logic
-                            <input type="checkbox" class="switch-input" id="toggle-logic"
-                                onchange="toggleLogic(this.checked)">
-                            <div class="switch-slider"></div>
-                        </label>
                     </div>
 
                     <!-- Auto Calc Group -->
@@ -851,16 +845,10 @@
             sex: 'male',
             dm: 1, // Default Yes
             route: 1, // 0=Arterial, 1=Venous
-            manual: false,
-            clinicalMode: false // false=Paper(Replication), true=Clinical(Corrected)
+            manual: false
         };
 
         // UI Helpers
-        function toggleLogic(isClinical) {
-            state.clinicalMode = isClinical;
-            calculate();
-        }
-
         function toggleSource(isManual) {
             state.manual = isManual;
             const auto = document.getElementById('grp-auto');
@@ -951,47 +939,22 @@
             if (!valid) return;
 
             // 2. Compute A
-            // Logic updated to support toggling between Paper (flawed) and Clinical (corrected) modes.
+            // Logic Matches Paper Example (Figure 1 in Kulkarni et al.)
+            // Note: This logic contains the 'sign flip' and specific coding (DM=2) 
+            // identified in critical analysis to match reference calculators.
 
-            let valRoute, valDm, A_Base;
+            // Route: Arterial=1 (Negative coeff reduces risk), Venous=0
+            const valRoute = state.route === 0 ? 1 : 0;
 
-            if (state.clinicalMode) {
-                // Clinical Mode: Logic Correction applied.
-                // Route: Arterial=1 (Increases risk, positive coeff), Venous=0
-                // DM: Yes=1, No=0 (Standard coding)
-                valRoute = state.route === 0 ? 1 : 0;
-                valDm = state.dm;
+            // DM: Yes=2, No=1
+            const valDm = state.dm === 1 ? 2 : 1;
 
-                // Using positive coeff for Route (Corrected from table)
-                // Using standard DM coding (0/1)
+            const A_Base = -3.676501
+                - (0.48362 * valRoute)
+                + (0.51667 * valDm)
+                - (0.04840 * gfr);
 
-                // Adjusted intercept? No, using same intercept but correct signs/coding implies re-calibration.
-                // However, without re-calibrated coefficients, we stick to the provided equation structure but fix the blatant sign error.
-                // Paper Table 3 says Route coeff is +0.48362. We use that.
-
-                // A = -3.676501 + 0.48362*Route + 0.03326*Vol + 0.51667*DM - 0.04840*GFR
-
-                A_Base = -3.676501
-                    + (0.48362 * valRoute) // Positive sign
-                    // + (0.03326 * vol)  <-- Added later
-                    + (0.51667 * valDm)    // Standard 0/1 DM
-                    - (0.04840 * gfr);
-
-            } else {
-                // Paper Mode (Replication): Matches Figure 1 & Reference App (53.4%)
-                // Route: Arterial=1 (Negative coeff reduces risk), Venous=0
-                // DM: Yes=2, No=1
-                valRoute = state.route === 0 ? 1 : 0;
-                valDm = state.dm === 1 ? 2 : 1;
-
-                A_Base = -3.676501
-                    - (0.48362 * valRoute) // Negative sign (Flawed)
-                    // + (0.03326 * vol)  <-- Added later
-                    + (0.51667 * valDm)
-                    - (0.04840 * gfr);
-            }
-
-            // Final A with Volume
+            // Final A with Volume (A_Base + 0.03326*Vol)
             const A = A_Base + (0.03326 * vol);
 
             const prob = Math.exp(A) / (1 + Math.exp(A));
@@ -1005,10 +968,8 @@
             resView.classList.add('active');
 
             // Safe Volume Calculation (Target Risk < 10%)
-            // P = 0.10 => A_target = ln(0.1 / 0.9) = ln(0.111) = -2.1972
+            // P = 0.10 => A_target = ln(0.1 / 0.9) = -2.1972
             // A_target = A_Base + (0.03326 * MaxVol)
-            // MaxVol = (A_target - A_Base) / 0.03326
-
             const targetRisk = 0.10;
             const A_target = Math.log(targetRisk / (1 - targetRisk));
             let maxVol = (A_target - A_Base) / 0.03326;
